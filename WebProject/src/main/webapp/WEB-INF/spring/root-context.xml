@@ -11,10 +11,13 @@
 	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"></bean>
   
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
-		<property name="url" value="jdbc:oracle:thin:@10.10.35.73:1521:prod"></property>
+		<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+		<property name="url" value="jdbc:log4jdbc:oracle:thin:@10.10.35.73:1521:prod"></property>
 		<property name="username" value="hr"></property>
 		<property name="password" value="hr"></property>
 	</bean>		
+
+		<!-- <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property> -->
+		<!-- <property name="url" value="jdbc:oracle:thin:@10.10.35.73:1521:prod"></property> -->
 </beans>
  

@@ -29,8 +29,7 @@
 	    <button class="cancle btn btn-danger" type="button" onclick="javascript: form.action='index';">취소</button>  
 	</form><br>
   	    
-  	
-  	<div id="mydiv"></div>
+  
 	<script>
 		$(function() {
 			$("#enroll").on("click", function(){
@@ -43,7 +42,7 @@
 				}else if(spanPwd != " 확인" ){
 					alert("비밀번호 확인");
 					return false
-				}else if(r_pwdChk != " 확인" ){
+				}else if(spanRPwd != " 확인" ){
 					alert("대여 비밀번호 확인");
 					return false
 				}
@@ -97,6 +96,11 @@
 				}else{
 					$("#spanRPwd").text(" 확인");
 				}
+			})
+			
+			//대여소 조회 팝업
+			$("#state").on('focus', function() {				
+                window.open("searchState", 'TEST', 'height=700,width=1000,top=0,left=0, fullscreen=yes');
 			})
 		})
 	

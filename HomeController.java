@@ -36,6 +36,9 @@ public class HomeController {
 	
 	@Autowired
 	memberDBHandle DBHandle;
+
+	@Autowired
+	StationDBHandle STDBHandle;
 	
 	/**
 	 * Simply selects the home view to render by returning its name.
@@ -207,6 +210,30 @@ public class HomeController {
 			if(jsonStr != null) {
 				out.print(jsonStr);
 				out.flush();				
+			}
+		} catch (IOException e) {
+			out.print(e.getMessage());
+		}
+	}
+	
+	@RequestMapping(value = "/searchState", method = RequestMethod.GET)
+	public String searchState(Locale locale, Model model) {
+		return "searchState";
+	}	
+	
+	@RequestMapping(value = "/searchPro", method = RequestMethod.GET)
+	public void searchStatePro(HttpServletRequest request, HttpServletResponse response, Model model) {		
+		response.setContentType("text/html; charset=UTF-8");
+
+		String keyword = request.getParameter("keyword");
+		PrintWriter out = null;
+		
+		try {
+			out = response.getWriter();
+			String jsonStr = STDBHandle.searchStation(keyword);
+			out.print("뭐임"+jsonStr);
+			out.flush();
+			if(jsonStr != null) {
 			}
 		} catch (IOException e) {
 			out.print(e.getMessage());

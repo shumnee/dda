@@ -99,11 +99,18 @@
 			})
 			
 			//대여소 조회 팝업
-			$("#state").on('focus', function() {				
-                window.open("searchState", 'TEST', 'height=700,width=1000,top=0,left=0, fullscreen=yes');
+			$("#state").on('click', function() {				
+                var newWindow = window.open("searchState", 'TEST', 'height=700,width=1000,top=0,left=0, fullscreen=yes');
+                newWindow.focus();
 			})
+			
 		})
 	
+		//주소값 가져오기
+		function setChildValue(data){
+			$("#state").val(data);
+		}
+		
 	</script>
 </body>
 </html>

@@ -17,12 +17,19 @@
 	</style>
 </head>
 <body>
-	<form method="get" id="loginForm">
+	<form method="post" id="loginForm">
 		<h3>로그인</h3><hr>
 	    <input type="text" placeholder="아이디 입력" id="userId" name="userId"><br>
-	    <input type="text" placeholder="비밀번호 입력" id="userPwd" name="userPwd"><br>
+	    <input type="text" placeholder="비밀번호 입력" id="userPwd" name="userPwd"><br><br>
 	    <button class="btn btn-default" onclick="javascript: form.action='loginPost';">로그인</button>
 	    <button class="btn btn-default" onclick="javascript: form.action='addMember';">회원가입</button>
 	</form>
+
+
+<script>
+$(function() {
+	
+})
+</script>
 </body>
 </html>

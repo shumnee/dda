@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +30,13 @@ public class HomeController {
 	DataSource dataSource;
 	
 	@Autowired
-	BycHandle BDBHandle;
-	
-	@Autowired
-	StationHandle SDBHandle;
-	
-	@Autowired
 	memberDBHandle DBHandle;
 
 	@Autowired
 	StationDBHandle STDBHandle;
+
+	@Autowired
+	TicketDBHandle TDBHandle;
 	
 	/**
 	 * Simply selects the home view to render by returning its name.
@@ -57,97 +55,23 @@ public class HomeController {
 		return "home";
 	}
 	
-	@RequestMapping(value = "/eyoung", method = RequestMethod.GET)
-	public String eyoung(Locale locale, Model model) {
-		
-		return "eyoung";
-	}
-	@RequestMapping(value = "/useselect", method = RequestMethod.GET)
-	public String useselect(Locale locale, Model model) {
-		
-		return "useselect";
-	}
-	@RequestMapping(value = "/chart", method = RequestMethod.GET)
-	public String chart(Locale locale, Model model) {
-		
-		return "chart";
-	}
-	@RequestMapping(value = "/test", method = RequestMethod.GET)
-	public String chartview(Locale locale, Model model) {
-		
-		return "test";
-	}
-	
-	@RequestMapping(value = "/rstRest", method = RequestMethod.GET)
-	public void rstRest(HttpServletResponse response, Model model) {		
-		response.setContentType("text/html; charset=UTF-8");
-		PrintWriter out = null;
-		
-		try {
-			out = response.getWriter();
-			String jsonStr = BDBHandle.makeJson();
-			if(jsonStr != null) {
-				out.print(jsonStr);
-				out.flush();
-			}
-		} catch (IOException e) {
-			out.print(e.getMessage());
-		}
-	}
-	
-	@RequestMapping(value = "/rstPost", method = RequestMethod.GET)
-	public void rstPost(HttpServletResponse response, Model model) {		
-		response.setContentType("text/html; charset=UTF-8");
-		PrintWriter out = null;
-		
-		try {
-			out = response.getWriter();
-			String jsonStr = BDBHandle.makePostJson();
-			if(jsonStr != null) {
-				out.print(jsonStr);
-				out.flush();
-			}
-		} catch (IOException e) {
-			out.print(e.getMessage());
-		}
-	}
-	@RequestMapping(value = "/map", method = RequestMethod.GET)
-	public String mapFn(Locale locale, Model model) {
-		
-		return "map";
-	}
-	
-	@RequestMapping(value = "/rstTest", method = RequestMethod.GET)
-	public void rstRegion(HttpServletResponse response, Model model) {		
-		response.setContentType("text/html; charset=UTF-8");
-		PrintWriter out = null;
-		
-		try {
-			out = response.getWriter();
-			String jsonStr = SDBHandle.makeJson();
-			if(jsonStr != null) {
-				out.print(jsonStr);
-				out.flush();				
-			}
-		} catch (IOException e) {
-			out.print(e.getMessage());
-		}
-	}
-	
+
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(Locale locale, Model model) {
 		return "login";
 	}
 	
-	@RequestMapping(value = "/loginPost", method = RequestMethod.GET)
-	public String loginPro(HttpServletRequest request, HttpServletResponse response, Model model) {		
+	@RequestMapping(value = "/loginPost", method = RequestMethod.POST)
+	public String loginPro(HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) {		
+
 		String m_id = request.getParameter("userId");
 		String m_pwd = request.getParameter("userPwd");
 
+		session.setAttribute("sessionUserName", m_id);
 		boolean check = DBHandle.checkPassword(m_id, m_pwd);
 
-		model.addAttribute("userId",m_id);
-		model.addAttribute("userPwd",m_pwd);
+		//model.addAttribute("userId",m_id);
+		//model.addAttribute("userPwd",m_pwd);
 		model.addAttribute("check",check);
 		
 		PrintWriter out =  null;
@@ -158,7 +82,7 @@ public class HomeController {
 				out = response.getWriter();
 				out.println("<script>alert('로그인 정보를 확인해주세요.'); history.go(-1); </script>");
 				out.flush();
-			} 
+			}
 		} catch (Exception e) {
 				e.printStackTrace();
 		}
@@ -222,7 +146,7 @@ public class HomeController {
 	}	
 	
 	@RequestMapping(value = "/searchPro", method = RequestMethod.GET)
-	public void searchStatePro(HttpServletRequest request, HttpServletResponse response, Model model) {		
+	public void searchPro(HttpServletRequest request, HttpServletResponse response, Model model) {		
 		response.setContentType("text/html; charset=UTF-8");
 
 		String keyword = request.getParameter("keyword");
@@ -231,9 +155,34 @@ public class HomeController {
 		try {
 			out = response.getWriter();
 			String jsonStr = STDBHandle.searchStation(keyword);
-			out.print("뭐임"+jsonStr);
-			out.flush();
 			if(jsonStr != null) {
+				out.print(jsonStr);
+				out.flush();				
+			}
+		} catch (IOException e) {
+			out.print(e.getMessage());
+		}
+	}
+
+	@RequestMapping(value = "/ticket", method = RequestMethod.GET)
+	public String ticketRecord(Locale locale, Model model) {
+		return "ticketRecord";
+	}	
+	
+	@RequestMapping(value = "/ticketPro", method = RequestMethod.GET)
+	public void ticketPro(HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) {		
+		response.setContentType("text/html; charset=UTF-8");
+		session = request.getSession();
+		String m_id = (String)session.getAttribute("sessionUser");
+
+		PrintWriter out = null;
+		
+		try {
+			out = response.getWriter();
+			String jsonStr = TDBHandle.selectTicket("soo");
+			if(jsonStr != null) {
+				out.print(jsonStr);
+				out.flush();				
 			}
 		} catch (IOException e) {
 			out.print(e.getMessage());

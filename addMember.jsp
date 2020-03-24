@@ -10,7 +10,7 @@
 
 </head>
 <body>
-	<form class="form-group" id="addMemberForm" action="addMemberPro" method="post">
+	<form class="form-group" id="addMemberForm" action="addMemberPro" method="get">
 		<h3>회원가입</h3><hr>
 		아이디(ID) : <input type="text" id="id" name="id">
 	    		   <button type="button" id="idChk" value="N">중복체크</button><br>

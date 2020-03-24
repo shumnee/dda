@@ -17,7 +17,7 @@
 	</style>
 </head>
 <body>
-	<form method="post" id="loginForm">
+	<form method="get" id="loginForm">
 		<h3>로그인</h3><hr>
 	    <input type="text" placeholder="아이디 입력" id="userId" name="userId"><br>
 	    <input type="text" placeholder="비밀번호 입력" id="userPwd" name="userPwd"><br><br>
@@ -27,9 +27,6 @@
 
 
 <script>
-$(function() {
-	
-})
 </script>
 </body>
 </html>

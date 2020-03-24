@@ -55,7 +55,7 @@
 			//대여소 선택
 			$("tbody").on("click","tr",function() {
 				var tr = $(this).children()   
-				var addr = tr.eq(1).text()
+				var addr = tr.eq(0).text()
 				console.log(tr.eq(0).text()+"("+tr.eq(1).text()+")")
 //				var theURL = "searchState?state="+; // 전송 URL
 //				opener.window.location = theURL;

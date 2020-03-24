@@ -38,6 +38,9 @@ public class HomeController {
 	@Autowired
 	TicketDBHandle TDBHandle;
 	
+	@Autowired
+	PaymentDBHandle PDBHandle;
+	
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
@@ -61,12 +64,13 @@ public class HomeController {
 		return "login";
 	}
 	
-	@RequestMapping(value = "/loginPost", method = RequestMethod.POST)
+	@RequestMapping(value = "/loginPost", method = RequestMethod.GET)
 	public String loginPro(HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) {		
 
 		String m_id = request.getParameter("userId");
 		String m_pwd = request.getParameter("userPwd");
 
+		session = request.getSession();
 		session.setAttribute("sessionUserName", m_id);
 		boolean check = DBHandle.checkPassword(m_id, m_pwd);
 
@@ -100,7 +104,7 @@ public class HomeController {
 		return "addMember";
 	}	
 	
-	@RequestMapping(value = "/addMemberPro", method = RequestMethod.POST)
+	@RequestMapping(value = "/addMemberPro", method = RequestMethod.GET)
 	public String addMemberPro(HttpServletRequest request, HttpServletResponse response, Model model) {		
 		response.setContentType("text/html; charset=UTF-8");
 
@@ -170,16 +174,60 @@ public class HomeController {
 	}	
 	
 	@RequestMapping(value = "/ticketPro", method = RequestMethod.GET)
-	public void ticketPro(HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) {		
+	public void ticketPro(HttpServletRequest request, HttpServletResponse response, Model model) {		
 		response.setContentType("text/html; charset=UTF-8");
-		session = request.getSession();
-		String m_id = (String)session.getAttribute("sessionUser");
-
+		String m_id = request.getParameter("m_id");
 		PrintWriter out = null;
 		
 		try {
 			out = response.getWriter();
 			String jsonStr = TDBHandle.selectTicket("soo");
+			if(jsonStr != null) {
+				out.print(jsonStr);
+				out.flush();				
+			}
+		} catch (IOException e) {
+			out.print(e.getMessage());
+		}
+	}
+	
+	@RequestMapping(value = "/ticketUpdatePro", method = RequestMethod.GET)
+	public void ticketUpdatePro(HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) {		
+		response.setContentType("text/html; charset=UTF-8");
+		String t_id = request.getParameter("t_id");
+		String m_id = request.getParameter("m_id");
+
+		PrintWriter out = null;
+		
+		try {
+			out = response.getWriter();
+			TDBHandle.updateTicket(t_id);
+			String jsonStr = TDBHandle.selectTicket("soo");
+			if(jsonStr != null) {
+				out.print(jsonStr);
+				out.flush();				
+			}
+		} catch (IOException e) {
+			out.print(e.getMessage());
+		}
+	}
+	
+	
+	@RequestMapping(value = "/payment", method = RequestMethod.GET)
+	public String payment(Locale locale, Model model) {
+		return "paymentRecord";
+	}	
+	
+	@RequestMapping(value = "/paymentPro", method = RequestMethod.GET)
+	public void paymentPro(HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) {		
+		response.setContentType("text/html; charset=UTF-8");
+		String m_id = request.getParameter("m_id");
+
+		PrintWriter out = null;
+		
+		try {
+			out = response.getWriter();
+			String jsonStr = PDBHandle.selectPayment(m_id);
 			if(jsonStr != null) {
 				out.print(jsonStr);
 				out.flush();				

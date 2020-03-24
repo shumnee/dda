@@ -11,41 +11,122 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+	<style>
+		.hide{display:none}
+	</style>
+	
 </head>
 <body>
 	<div class="container">
 		<h3>이용권 사용 내역</h3><hr><br>
-		<table id="mytable" class="table">
-			<thead>
-				<tr>
-					<!-- 이용권명, 구매일자 컬럼 추가 필요 -->
-					<th>이용권id</th><th>구매일자</th><th>사용일자</th><th>만료일자</th><th>사용여부</th>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>
+			<table id="mytable" class="table">
+				<thead>
+					<tr>
+						<th>번호</th>
+						<th class="hide">이용권 ID</th>
+						<th>이용권 내역</th><th>구매일자</th><th>사용일자</th><th>만료일자</th><th>사용여부</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		<h5>※ 환불하실 이용권은 [사용여부] 버튼을 클릭해주세요!</h5>
 	</div>
   
 	<script>
+		var isAjaxing = false
+
 		$(function() {
 			//이용권 구매/사용 내역 조회
-			$.getJSON('ticketPro', function(data){
-	        	$.each(data, function(i,v){
-	        		$("#mytable > tbody").append("<tr><td>"+v.t_id+"</td><td>"+v.buy_date+"</td><td>"+v.s_date+"</td><td>"+v.e_date+"</td><td>"+insertButton(v.end_yn)+"</td></tr>")
-	        	})
+			$.getJSON("ticketPro?m_id="+sessionStorage.getItem("sessionUserName"), insertTable)
+			
+			//전체선택 및 해제
+			//$('input[name=_selected_all_]').on('change', function(){
+			//  $('input[name=_selected_]').prop('checked', this.checked);
+			//});
+
+			//선택한 Checkbox 값 가져오기
+			//var str = $('input[name=_selected_]:checked').serialize()
+			//console.log(str)
+			
+			//table에 selectBox추가
+			//<th><input type='checkbox' name="_selected_all_"></th>
+			//<td><input type='checkbox' name='_selected_' value='"+i+"'></td>
+			
+			//버튼 이미지 변경
+			$(document).on("mouseenter","#useBtn",function(){
+				$(this).css("background-color", "gray");
+				$(this).html('환불하기');
+			})	
+			$(document).on("mouseleave","#useBtn",function(){
+				$( this ).removeAttr( 'style' )
+				$(this).html('사용가능');
 			})
 			
+			//환불하기 팝업
+			$(document).on("click","#useBtn",function(){
+				
+				var checkBtn = $(this);
+				var tr = checkBtn.parent().parent();
+				var td = tr.children();
+				
+				var t_name = td.eq(0).text();
+				var t_id = td.eq(1).text();
+				
+				swalAlert(t_id, sessionStorage.getItem("sessionUserName"))
+			})
 		})
-
+		
+		//0:사용완료 ,1:사용가능 ,2:환불
 		function insertButton(yn){
-			if(yn == '1'){
-				return "<button>미사용</button>"
-			}else{
-				return "<button>사용</button>"
+			if(yn == '0'){
+				return "<button class='btn btn-primary' id='endBtn' type='submit'> 사용완료 </button>"
+			}else if(yn == '1'){
+				return "<button class='btn btn-success' id='useBtn'> 사용가능 </button>"
+			}else if(yn == '2'){
+				return "<button class='btn btn-danger' id='refundBtn'>  환불  </button>"				
 			}
 		}
+
+		function insertTable(data){
+       		$('tbody > tr').remove();
+       		
+        	$.each(data, function(i,v){
+        		$("#mytable > tbody").append("<tr><td>"+(i+1)+"</td><td class='hide'>"+v.t_id+"</td><td>"+v.t_name+"</td><td>"+v.buy_date+"</td><td>"+v.s_date+"</td><td>"+v.e_date+"</td><td>"+insertButton(v.end_yn)+"</td></tr>")
+        	})
+		}
 		
+		function swalAlert(t_id, m_id){
+			Swal.fire({
+				  title: '정말 환불하시겠습니까?',
+				  text: "해당 버튼을 누르면 거래취소가 불가능합니다.",
+				  icon: 'warning',
+				  showCancelButton: true,
+				  confirmButtonColor: '#3085d6',
+				  cancelButtonColor: '#d33',
+				  confirmButtonText: 'Yes, refund it!'
+				}).then(function (result) {
+					console.log(result)
+					if(result.value){
+					
+						$.ajax({
+							url:"ticketUpdatePro",
+							data:{'t_id':t_id ,'m_id':m_id},
+							dataType: "json",
+							success:function(data){ 
+								if(result.value){
+									insertTable(data) 
+									Swal.fire(
+										      '환불 완료!',
+										      '자세한 사항은 [마이페이지 > 결제내역]을 확인하세요',
+										      'success'
+											 ) 								
+								}
+							}})
+					}
+					})	
+				}
 	</script>
 </body>
 </html>

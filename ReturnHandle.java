@@ -138,7 +138,7 @@ public class ReturnHandle {
 	
 	
 	public String insertReturn(String ri, String mi, String ti, String si, String bi) {
-		// 대여내역(t_use_ticket)에 [예약id(r_id),m_id,t_id,s_id,b_id,사용 여부 0] 추가 ->insertRental
+		// 대여내역(t_use_ticket)에 [예약id(r_id),m_id,t_id,s_id,b_id,사용 여부 0] 추가 ->insertReturn
 		System.out.println("insertReturn - insertReturnInfo 실행");
 
 		JSONArray arr = new JSONArray();
@@ -297,6 +297,47 @@ public class ReturnHandle {
 				System.out.println("결제 라인 추가 완료?"+arr);		
 				
 			}
+			rs.close();
+			return arr.toJSONString();
+		}catch( Exception ex ) {
+			return null;
+		}finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public String moveStar(String mi) {
+		System.out.println("moveStar - moveInfo 실행"+mi);
+
+		JSONArray arr = new JSONArray();
+		ResultSet rs = null;
+		
+		String select_star = "select * from t_station, t_member where t_station.s_id = t_member.s_id and t_member.m_id = '"+mi+"'";
+		
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			
+			pstmt = conn.prepareStatement(select_star); 
+			rs = pstmt.executeQuery();
+			rs.next();
+			JSONObject o = new JSONObject();
+			
+			float latitude = rs.getFloat("latitude");
+			float longitude = rs.getFloat("longitude");
+			
+			o.put("latitude",latitude);
+			o.put("longitude",longitude);
+				
+			arr.add(o);
+			System.out.println("즐찾"+arr);		
+				
+			
 			rs.close();
 			return arr.toJSONString();
 		}catch( Exception ex ) {

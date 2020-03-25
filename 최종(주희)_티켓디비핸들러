@@ -1,0 +1,99 @@
+package com.three.web;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+
+import javax.sql.DataSource;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class TicketDBHandle {
+	@Autowired
+	DataSource dataSource;
+
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	
+	
+	public String selectTicket(String m_id) {
+		JSONArray arr = new JSONArray();
+		String sql= " select b.ticket_type as t_name, t_id" + 
+				"      , to_char(buy_date, 'yyyy-mm-dd') buy_date" + 
+				"      , to_char(s_date, 'yyyy-mm-dd') s_date" + 
+				"      , to_char(e_date, 'yyyy-mm-dd') e_date, end_yn" + 
+				"   from t_buy_ticket a, t_ticket b" + 
+				" where a.type_id = b.type_id" + 
+				"   and a.m_id = ?";
+		ResultSet rs = null;
+	
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, m_id);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				String t_name = rs.getString("t_name");
+				String t_id = rs.getString("t_id");
+				String buy_date = rs.getString("buy_date");
+				String s_date = rs.getString("s_date");
+				String e_date = rs.getString("e_date");
+				String end_yn = rs.getString("end_yn");						
+				
+				JSONObject o = new JSONObject();
+				
+				o.put("t_name",t_name);
+				o.put("t_id",t_id);
+				o.put("buy_date",buy_date);
+				if(s_date != null) {
+					o.put("s_date",s_date);
+				}else {
+					o.put("s_date","-");
+				}
+				
+				if(e_date != null) {
+					o.put("e_date",e_date);
+				}else {
+					o.put("e_date","-");
+				}
+				o.put("end_yn",end_yn);
+				arr.add(o);
+			}
+			
+		rs.close();
+		
+		return arr.toString();
+		
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+			return null;
+		}
+	}
+	
+	public void updateTicket(String t_id) {
+		String sql= "update t_buy_ticket set end_yn = '2' where t_id = ?";
+
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+	
+			pstmt.setString(1, t_id); 
+		
+			pstmt.executeUpdate();
+		
+			System.out.println("update 완료");
+			
+		}catch( Exception ex ) {
+			System.out.println("update 실패 : "+ex.getMessage());
+		}
+	}
+
+}

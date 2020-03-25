@@ -1,0 +1,209 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>대여/반납 내역 조회</title>
+	<script src=https://code.jquery.com/jquery-3.4.1.min.js></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+	<style>
+		.hide{display:none}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<br>
+		<legend><h4>ⅰ 총 이용시간에 따른 누적 적립금</h4></legend>
+		<table id="mytable1" class="table table-bordered">
+			<thead>
+				<tr><th>총 이용시간(분)</th><th>적립금</th></tr>
+			<thead>
+			<tbody>
+			</tbody>
+		</table>
+		<br><br>
+		<legend><h4>ⅱ  대여 및 반납 세부사항</h4></legend>
+		<table id="mytable2" class="table table-bordered">
+			<thead>
+				<tr><th class="hide">대여 ID</th>
+					<th class="hide">대여장소 ID</th>
+					<th class="hide">반납장소 ID</th>
+					<th class="hide">이용권ID</th>
+					<th>자전거 ID</th><th>대여 장소</th>
+					<th>반납 장소</th><th>대여/반납</th>
+				</tr>
+			<thead>
+			<tbody>
+			</tbody>
+		</table>
+		<h5>※ [대여/반납] 버튼을 클릭하여 비밀번호를 입력해야 자전거 대여가 완료됩니다. </h5>
+	</div>
+
+	<script>
+	var sessionUserName = "${sessionScope.sessionUserName}"
+	console.log(sessionUserName)
+	$(function() {
+		//총 이용시간 및 누적 적립금
+		$.getJSON("totalMilePro?m_id="+sessionUserName, insertTable1)
+
+		//총 이용시간 및 누적 적립금
+		$.getJSON("useTicketPro?m_id="+sessionUserName, insertTable2)
+		
+		//자전거 [대여하기] 팝업
+		$(document).on("click","#Btn1",function(){
+			
+			var checkBtn = $(this);
+			var tr = checkBtn.parent().parent();
+			var td = tr.children();
+			
+			var r_id = td.eq(0).text(); 
+			var t_id = td.eq(3).text(); 
+			
+			swalAlert(r_id,t_id)
+		})
+
+		//자전거 [반납하기] 팝업
+		$(document).on("click","#Btn4",function(){
+			swalAlert2()
+		})
+
+		//자전거 [취소하기] 팝업
+		$(document).on("click","#Btn2",function(){
+			
+			var checkBtn = $(this);
+			var tr = checkBtn.parent().parent();
+			var td = tr.children();
+			
+			var r_id = td.eq(0).text(); 
+			var s_id = td.eq(1).text(); 
+			var b_id = td.eq(4).text(); 
+			
+			swalAlert3(r_id, b_id, s_id)
+		})
+	})
+	
+
+	function insertTable1(data){
+      	$('#mytable1 > tbody > tr').remove();
+      		
+       	$.each(data, function(i,v){
+       		$("#mytable1 > tbody").append('<tr><td>'+v.use_time+'</td><td>'+v.m_mile+'</td></tr>')
+       	})
+	}
+
+	function insertTable2(data){
+      	$('#mytable2 > tbody > tr').remove();
+      		
+       	$.each(data, function(i,v){
+       		
+			console.log(v.rs_id)
+       		$("#mytable2 > tbody").append("<tr><td class='hide'>"+v.r_id
+       											+"</td><td class='hide'>"+v.s_id
+       											+"</td><td class='hide'>"+v.rs_id
+       											+"</td><td class='hide'>"+v.t_id
+       											+'</td><td>'+v.b_id
+       											+'</td><td>'+v.s_name
+       											+'</td><td>'+v.rs_name
+       											+'</td><td>'+insertButton(v.r_use,v.rs_name)
+       											+'</td></tr>')
+       	})
+	}
+	
+	//use:대여상태 ,rState:반납장소 
+	function insertButton(use, rState){
+		if(use == '1'){ //예약가능
+			return "<button class='btn btn-primary' id='Btn1' type='submit'> 대여하기 </button>&nbsp&nbsp/&nbsp&nbsp"
+					+ "<button class='btn btn-secondary' id='Btn2' type='submit'> 취소하기 </button>"
+		}else if(use == '2' && rState != ""){ //반납
+			return "<button class='btn btn-warning' id='Btn3'> 반납완료 </button>"
+		}else if(use == '2'){ //사용
+			return "<button class='btn btn-success' id='Btn4'> 반납하기 </button>"
+		}else if(use == '3'){ //취소
+			return "<button class='btn btn-danger' id='Btn5'> 취소완료 </button>"
+		}
+	}
+       	
+    //대여 비밀번호 입력 & 대여완료
+	function swalAlert(r_id,t_id){
+		Swal.fire({
+			  title: '대여 비밀번호 입력',
+			  input: 'text',
+			  showCancelButton: true,
+			  confirmButtonColor: '#3085d6',
+			  cancelButtonColor: '#d33',
+			  confirmButtonText: 'make a reservation!'
+			}).then(function (result) {
+				console.log(result)
+				if(result.value){
+					$.ajax({
+					url:"ticketRentalPro",
+					data:{'r_id':r_id
+						 ,'m_id':sessionUserName
+						 ,'r_pwd':result.value
+						 ,'t_id':t_id},
+					success:function(data){ 
+						insertTable2(JSON.parse(data)) 
+						Swal.fire(
+							      '자전거 대여 완료!',
+							      '1시간 내로 반납 부탁드립니다.',
+							      'success'
+								 ) 								
+					}}) 
+					
+				}
+			})	
+		}
+    
+    //반납하기 페이지로 이동
+	function swalAlert2(){
+		Swal.fire({
+			  position: 'center',
+			  icon: 'info',
+			  title: '정말 환불하시겠습니까?',
+			  text: "[반납하기]는 기존의 예약페이지로 넘어갑니다.",
+			  showCancelButton: true
+			}).then(function (result) {
+				console.log(result)
+				if(result.value){
+					location.href="map?m_id="+sessionUserName;
+				}
+			})	
+		}
+    
+    //대여내역 취소하기
+	function swalAlert3(r_id, b_id, s_id){
+		Swal.fire({
+			  title: '대여내역을 취소하시겠습니까?',
+			  text: "취소된 항목은 재 사용이 불가능합니다.",
+			  showCancelButton: true,
+			  confirmButtonColor: '#3085d6',
+			  cancelButtonColor: '#d33',
+			  confirmButtonText: 'yes'
+			}).then(function (result) {
+				console.log(result.value)
+				if(result.value){
+					$.ajax({
+					url:"ticketCancelPro",
+					data:{'r_id':r_id
+						 ,'b_id':b_id
+						 ,'s_id':s_id
+						 ,'m_id':sessionUserName},
+					success:function(data){ 
+						insertTable2(JSON.parse(data)) 
+						Swal.fire(
+							      '대여 취소 완료!',
+							      'success'
+								 ) 								
+					}}) 
+					
+				}
+			})	
+		}
+	</script>
+</body>
+</html>

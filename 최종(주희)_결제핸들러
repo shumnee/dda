@@ -1,0 +1,70 @@
+package com.three.web;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+
+import javax.sql.DataSource;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class PaymentDBHandle {
+	
+	@Autowired
+	DataSource dataSource;
+
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	
+	
+	public String selectPayment(String m_id) {
+		JSONArray arr = new JSONArray();
+		String sql= "select r_id, p_type, ticket_type, p_date, price" 
+				  + "  from t_payment p, t_ticket t" 
+				  + " where p.t_id = t.type_id" 
+				  + "   and p.m_id = ? ";
+		ResultSet rs = null;
+	
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, "m1");
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				String r_id = rs.getString("r_id");
+				String p_type = rs.getString("p_type");
+				String ticket_type = rs.getString("ticket_type");
+				Date p_date = rs.getDate("p_date");
+				int price = rs.getInt("price");						
+				
+	
+				SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd");
+				
+				JSONObject o = new JSONObject();
+				o.put("r_id",r_id);
+				o.put("p_type",p_type);
+				o.put("ticket_type",ticket_type);
+				o.put("p_date",transFormat.format(p_date));
+				o.put("price",price);
+				
+				arr.add(o);
+			}
+			
+		if (rs != null) rs.close();
+		
+		return arr.toString();
+		
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+			return null;
+		}
+	}
+}

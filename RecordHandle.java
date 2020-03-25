@@ -37,7 +37,7 @@ public class RecordHandle {
 		String check_buy = "select count(*) from t_buy_ticket";
 		String check_pay = "select count(*) from t_payment";
 		String insert_buy = "insert into t_buy_ticket values(?,?,?,null,null,?,1,?,sysdate)";
-		String insert_pay = "insert into t_payment values(?,null,?,?,0,sysdate,1,?)";
+		String insert_pay = "insert into t_payment values(?,null,?,?,0,sysdate,0,?)";
 		
 		String pay_cnt = "select count(*) from t_payment";
 

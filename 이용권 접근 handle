@@ -1,0 +1,40 @@
+// 구매 메뉴 누를 때 사용 end_yn 체크
+	public String checkBuyTicket( String mi) {
+		// 이용권 구매 내역(t_buy_ticket)에 [t_id,m_id,t_id,s_id,b_id,사용 여부 0] 추가 ->insertRental
+		System.out.println("checkBuyTicket - checkBuyTicketInfo 실행");
+
+		JSONArray arr = new JSONArray();
+		int buy_cnt =0;
+		ResultSet rs = null;
+		String check_endyn = "select count(*) from t_buy_ticket where m_id = '"+mi+"' and end_yn = 1";
+		
+		Connection conn = null;
+		try {
+			conn = dataSource.getConnection();
+			
+			pstmt = conn.prepareStatement(check_endyn);
+			rs = pstmt.executeQuery();
+			rs.next();
+			int cnt_end = rs.getInt("count(*)"); // end_yn =1 인 count ==0이여야 구매 가능
+			
+			
+			JSONObject o = new JSONObject();
+			o.put("cnt_end",cnt_end);
+			arr.add(o);
+			
+			
+			rs.close();
+			return arr.toJSONString();
+		}catch( Exception ex ) {
+			return null;
+		}finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	

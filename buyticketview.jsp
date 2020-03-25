@@ -28,21 +28,22 @@ border:2px solid black; padding 10px;
 </head>
 <body>
 <script>
-  var m_id = '112'
+var m_id = '0'
+
 </script>
 <h1>이용권구매</h1><br>
 
 <div id = "box1" style = "padding: 5px 1px 2px 3px;">
 	<img src="resources/img/ticket.png" width="50" height = "50">
 	<h2>정기권,일일권 구매</h2>
-<div>일일권 :1시간, 2시간<br> 정기권 : 7일권,30일권,180일권,365일권</div><br>
+<div>일일권 :1시간, 2시간<br> 정기권 : 7일권, 30일권, 180일권, 365일권</div><br>
 	이용권 선택: <select id='ticket' name='ticket'></select>
 <script>
 	$.getJSON('rstTicket',fn)
 		function fn(data){
 		$.each(data,function(i,v){
 			$("#ticket").append('<option id='+v.type_id+' data-ty="'+v.type_id+'" data-d="'+v.t_day+'" data-tp="'+v.t_price+'" data-ip="'+v.i_price+'">'+v.ticket_type+'</option>')
-			})
+			}) 
 		}
 </script>
 <br>
@@ -81,7 +82,9 @@ border:2px solid black; padding 10px;
 		var sum = Number(tp)+Number(ip);
 		console.log(sum)
 		$("#pay").attr("money",sum)
-		$("#price").append("<p>"+sum+"</p>")
+		$("#price").empty()
+		
+		$("#price").append("<p><h4>결제 내역</h4><br>이용권 가격: "+Number(tp)+"원 <br>보험금 가격: "+Number(ip)+" 원<br>총 결제 금액: "+sum+" 원</p>")
 	})
 		
 </script>
@@ -115,7 +118,7 @@ border:2px solid black; padding 10px;
 					alert("결제 JSON 오류")
 				}else{
 					$.each(JSON.parse(data), function(i,v){
-						alert("이용권 id: "+v.t_id+"결제 id: "+v.p_id)
+						alert("이용권 id: "+v.t_id+",결제 id: "+v.p_id)
 						})
 					}
 				}

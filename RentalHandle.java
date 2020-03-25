@@ -101,7 +101,7 @@ public class RentalHandle {
 		String send_sql="select * from t_buy_ticket, t_bicycle where t_buy_ticket.m_id='"+mi+"' and t_buy_ticket.end_yn = 1 and t_bicycle.cond_info=1 and t_bicycle.b_id ='"+bi+"' and t_bicycle.s_id ='"+si+"'";
 		String sqlcnt = "select count(*) from t_use_ticket";
 		
-		String insert_rental="insert into t_use_ticket(r_id, m_id, t_id,s_id,b_id,r_use,insurance_yn) values(?, ?, ?, ?, ?, ?, ?)";
+		String insert_rental="insert into t_use_ticket(r_id, m_id, t_id,s_id,b_id,r_use,insurance_yn,rs_id) values(?, ?, ?, ?, ?, ?, ?,?)";
 		// t_use_ticket에 새 예약 행 삽입
 		String update_bi = "update t_bicycle set cond_info = 0 where b_id ='"+bi+"'"; // 자전거 cond_info =0
 		// 예약된 자전거 cond_info = 0으로 업데이트
@@ -136,6 +136,7 @@ public class RentalHandle {
 				pstmt.setString(5, bi);
 				pstmt.setInt(6, 1);
 				pstmt.setInt(7, inyn);
+				pstmt.setString(8, "0");
 				pstmt.executeQuery();
 				o.put("r_id",r_id);
 				o.put("mi",mi); //para
@@ -158,6 +159,7 @@ public class RentalHandle {
 		}
 	}
 	
+	
 	public String checkReserve(String mi) {
 		// 찜하기 눌렀을 때 이미 예약 중인 내역이 있는 지 확인 r_use 상태 1(사용중)이면 예약불가, 0(완료)와 2(취소-환불)이면 가능
 		System.out.println("checkReserve - checkReserveInfo 실행");
@@ -175,7 +177,7 @@ public class RentalHandle {
 			pstmt = conn.prepareStatement(check_e_date);
 			pstmt.executeQuery();
 			
-			String check_sql = "select ut.r_use r_use, ut.r_id r_id, bt.t_id t_id, tt.type_id type_id, tt.ticket_type ticket_type from t_use_ticket ut right outer join t_buy_ticket bt on ut.m_id = bt.m_id join t_ticket tt on bt.type_id = tt.type_id where bt.end_yn=1 and bt.m_id='" + mi+"'";
+			String check_sql = "select ut.rs_id rs_id, ut.r_use r_use, ut.r_id r_id, bt.t_id t_id, tt.type_id type_id, tt.ticket_type ticket_type from t_use_ticket ut right outer join t_buy_ticket bt on ut.m_id = bt.m_id join t_ticket tt on bt.type_id = tt.type_id where bt.end_yn=1 and bt.m_id='" + mi+"'";
 
 			// 유효한 구매권이 없는 회원은 구매 페이지로, 사용중인 내역이 있는 회원은 마이페이지- 대여 내역조회로(반납) 보내기 위해
 			// t_use_ticket의 r_use 컬럼을 조회: mi로 예약한 내역 중 이용권이 아직 유효(end_yn=1)한 데이터
@@ -187,6 +189,7 @@ public class RentalHandle {
 				
 				JSONObject o = new JSONObject();
 				
+				String rs_id = rs.getString("rs_id");
 				int r_use = rs.getInt("r_use");
 				String r_id = rs.getString("r_id");
 				String t_id = rs.getString("t_id");
@@ -196,6 +199,7 @@ public class RentalHandle {
 				o.put("type_id",type_id);
 				o.put("ticket_type",ticket_type);
 				o.put("r_id",r_id);
+				o.put("rs_id",rs_id);
 				o.put("r_use",r_use); // js에서 alert 후 페이지 전환(구매 or 반납)
 				
 				arr.add(o);
@@ -203,127 +207,6 @@ public class RentalHandle {
 				
 			}
 			System.out.println("rs get row size:"+rs.getRow());		
-			rs.close();
-			return arr.toJSONString();
-		}catch( Exception ex ) {
-			return null;
-		}
-	}
-	
-	public String selectTuse_ticket() { // 체크용
-		System.out.println("확인 - 예약 행 삽입 완료 체크, select * from t_use_ticket 실행");
-
-		JSONArray arr = new JSONArray();
-		ResultSet rs = null;
-		
-		String send_sql="select * from t_use_ticket";
-		
-		try {
-			conn = dataSource.getConnection();
-			
-			pstmt = conn.prepareStatement(send_sql);
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				JSONObject o = new JSONObject();
-				
-				String r_id = rs.getString("r_id");
-				String m_id = rs.getString("m_id");
-				String t_id = rs.getString("t_id");
-				String s_id = rs.getString("s_id");
-				String b_id = rs.getString("b_id");
-				int r_use = rs.getInt("r_use");
-				String rental_time = rs.getString("rental_time");
-				String rs_id = rs.getString("rs_id");
-				String return_time = rs.getString("return_time");
-				String insurance_yn = rs.getString("insurance_yn");
-				int use_time = rs.getInt("use_time");
-				o.put("r_id",r_id);
-				o.put("m_id",m_id);
-				o.put("t_id",t_id);
-				o.put("s_id",s_id);
-				o.put("b_id",b_id);
-				o.put("r_use",r_use);
-				o.put("rental_time",rental_time);
-				o.put("rs_id",rs_id);
-				o.put("return_time",return_time);
-				o.put("insurance_yn",insurance_yn);
-				o.put("use_time",use_time); 
-				arr.add(o);
-				System.out.println("r_use 내역 체크"+arr);	
-			}
-			rs.close();
-			return arr.toJSONString();
-		}catch( Exception ex ) {
-			return null;
-		}
-	}
-	
-	public String selectTbicycle() { // 체크용
-		System.out.println("확인 - 자전거 cond_info 변화 체크, select * from t_bicycle 실행");
-
-		JSONArray arr = new JSONArray();
-		ResultSet rs = null;
-		
-		String send_sql="select * from t_bicycle";
-		
-		try {
-			conn = dataSource.getConnection();
-			
-			pstmt = conn.prepareStatement(send_sql);
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				JSONObject o = new JSONObject();
-				
-				String b_id = rs.getString("b_id");
-				String s_id = rs.getString("s_id");
-				String cond_info = rs.getString("cond_info");
-				String reg_date = rs.getString("reg_date");
-				
-				o.put("b_id",b_id);
-				o.put("s_id",s_id);
-				o.put("cond_info",cond_info);
-				o.put("reg_date",reg_date);
-				
-				arr.add(o);
-				System.out.println("t_bicycle cond_info 내역 체크"+arr);	
-			}
-			rs.close();
-			return arr.toJSONString();
-		}catch( Exception ex ) {
-			return null;
-		}
-	}
-	
-	public String selectTstation() { // 체크용
-		System.out.println("확인 - 자전거 재고 변화 체크, select * from t_station 실행");
-
-		JSONArray arr = new JSONArray();
-		ResultSet rs = null;
-		
-		String send_sql="select * from t_station";
-		
-		try {
-			conn = dataSource.getConnection();
-			
-			pstmt = conn.prepareStatement(send_sql);
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				JSONObject o = new JSONObject();
-				
-				String s_id = rs.getString("s_id");
-				String s_name = rs.getString("s_name");
-				String stock = rs.getString("stock");
-				
-				o.put("s_id",s_id);
-				o.put("s_name",s_name);
-				o.put("stock",stock);
-				
-				arr.add(o);
-				System.out.println("t_station stock 내역 체크"+arr);	
-			}
 			rs.close();
 			return arr.toJSONString();
 		}catch( Exception ex ) {

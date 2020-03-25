@@ -1,0 +1,278 @@
+package com.three.web;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.sql.DataSource;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+
+@Repository
+public class useTicketDBHandle {
+	
+	@Autowired
+	DataSource dataSource;
+
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	
+	
+	public String selectTotalMile(String m_id) {
+		JSONArray arr = new JSONArray();
+		String sql= "select sum(m.m_mile) m_mile,sum(u.use_time) use_time" + 
+				"  from t_use_ticket u, t_member m" + 
+				" where u.m_id = m.m_id" + 
+				"  and u.m_id = ?" +
+				" group by u.m_id";
+
+		ResultSet rs = null;
+	
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, m_id);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				int use_time = rs.getInt("use_time");
+				int m_mile = rs.getInt("m_mile");						
+				
+				JSONObject o = new JSONObject();
+				
+				o.put("use_time", use_time);
+				o.put("m_mile",m_mile);
+				arr.add(o);
+			}
+			
+		rs.close();
+		conn.close();
+		
+		return arr.toString();
+		
+		}catch( Exception ex ) {
+			return null;
+		}
+	}
+	
+	public String selectUseTicket(String m_id) {
+		JSONArray arr = new JSONArray();
+		String sql= "select r_id, s_id, t_id" + 
+				"       , (select s_name" + 
+				"            from t_station t" + 
+				"           where s_id = u.s_id ) as s_name" + 
+				"       , b_id" + 
+				"       , rs_id" + 
+				"       , (select s_name" + 
+				"            from t_station t" + 
+				"           where s_id = u.rs_id ) as rs_name" + 
+				"       , r_use" + 
+				"  from t_use_ticket u" + 
+				" where m_id = ?";
+		
+		ResultSet rs = null;
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, m_id);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				String r_id = rs.getString("r_id");
+				String s_id = rs.getString("s_id");
+				String s_name = rs.getString("s_name");
+				String b_id = rs.getString("b_id");						
+				String rs_id = rs.getString("rs_id");
+				String rs_name = rs.getString("rs_name");						
+				String r_use = rs.getString("r_use");						
+				String t_id = rs.getString("t_id");						
+				
+				JSONObject o = new JSONObject();
+				
+				o.put("r_id", r_id);
+				o.put("s_id", s_id);
+				o.put("s_name", s_name);
+				o.put("b_id",b_id);
+				o.put("rs_id",rs_id);
+				
+				if(rs_name == null) {					
+					rs_name = "";
+				}
+				
+				o.put("rs_name",rs_name);
+				o.put("r_use",r_use);
+				o.put("t_id",t_id);
+				arr.add(o);
+			}
+			
+		rs.close();
+		conn.close();
+		
+		return arr.toString();
+		
+		}catch( Exception ex ) {
+			return null;
+		}
+	}
+
+	public void updateRental(String r_id) {
+		
+		//use_ticket 대여 update
+		String sql= "update t_use_ticket" + 
+				"   set r_use = '2'" + 
+				"      ,rental_time = sysdate" + 
+				" where r_id = ?";
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, r_id);
+			
+			int rCnt = pstmt.executeUpdate();
+			System.out.println("변경된 row : " + rCnt);
+	
+			conn.close();
+
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+		}
+	}
+	
+	public int checkRentalPassword(String m_id, String r_pwd) {
+		
+		//대여번호 확인
+		String sql= "select count(*) as rCnt from t_member where m_id=? and r_pwd = ?";
+		ResultSet rs = null;
+		int rst = 0;
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, m_id);
+			pstmt.setString(2, r_pwd);
+			
+			rs = pstmt.executeQuery();
+			rs.next();
+			
+			int rCnt = rs.getInt("rCnt");
+			
+			if(rCnt > 0) {
+				rst = 1;
+			}
+			
+			rs.close();
+			conn.close();
+			
+			return rst;
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+			return rst;
+		}
+	}
+	
+	public void updateRbuyTicket(String t_id) {
+		
+		//구매이용권 update (대여)
+		String sql= "update t_buy_ticket" + 
+				"   set s_Date = sysdate" + 
+				"     , e_date = sysdate + t_day" + 
+				" where t_id = ?";
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1,t_id);
+			
+			int rCnt = pstmt.executeUpdate();
+			System.out.println("updateRbuyTicket : " + rCnt);
+	
+			conn.close();
+			
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+		}
+	}
+	
+	public void updateCBicycle(String b_id) {
+		
+		//자전거 update (취소)
+		String sql= " update t_bicycle" + 
+				"   set code_info = '1'" + 
+				" where b_id = ?";
+		ResultSet rs = null;
+		int rst = 0;
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1,b_id);
+			
+			int rCnt = pstmt.executeUpdate();
+			//System.out.println("updateRBicycle : " + rCnt);
+	
+			conn.close();
+			
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+		}
+	}
+	
+	public void updateCStation(String s_id) {
+		
+		//대여소 update (취소)
+		String sql= "  update t_station" + 
+				"   set stock = stock + 1" + 
+				" where s_id = ?";
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1,s_id);
+			
+			int rCnt = pstmt.executeUpdate();
+			//System.out.println("updateRStation : " + rCnt);
+	
+			conn.close();
+			
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+		}
+	}
+	
+	public void updateCancel(String r_id) {
+		
+		//use_ticket 취소 update
+		String sql= "update t_use_ticket" + 
+				"   set r_use = '3'" + 
+				" where r_id = ?";
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, r_id);
+			
+			int rCnt = pstmt.executeUpdate();
+			//System.out.println("변경된 row : " + rCnt);
+	
+			conn.close();
+
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+		}
+	}
+}
+// 추후에 주소 부분..변경할 여유있으면 수정..
+//	String str = "goodmorning-kil-dong"
+//	String s1 = str.substring(12) ; // kil-dong // 시작값만 주어지면 그 위치부터 끝까지 추출
+//	String s2 = str.substring(12,15); //kil // 시작값위치부터 끝값-1 위치까지 추출(끝값위치의 문자는 포함하지않음)
+//
+//	char 문자열변수 = 문자열.charAt(12) // k // 12번째 문자1개만 반환한다
+//
+//	String str2 = "banana";
+//	int a1 = str2.indexOf('a');

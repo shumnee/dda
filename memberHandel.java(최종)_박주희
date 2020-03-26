@@ -1,0 +1,217 @@
+package com.three.web;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class MemberHandle {
+	@Autowired
+	DataSource dataSource; //bean에서 만든 객체 참조
+	Connection conn;
+	PreparedStatement pstmt;
+	
+	
+	public String selectMemberId(String m_id) {
+		JSONArray arr = new JSONArray();
+		String sql= "select count(*) as cnt from t_member where m_id = ?";
+		ResultSet rs = null;
+		String rst = "0"; //중복
+	
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, m_id);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				if(rs.getInt("cnt") > 0) {
+					rst = "0"; //사용 불가능					
+				} else { 
+					rst = "1"; //사용 가능
+				}
+
+				JSONObject o = new JSONObject();
+				o.put("rst",rst);
+				arr.add(o);
+			}
+			
+		rs.close();
+		
+		return arr.toString();
+		
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+			return null;
+		}
+	}
+	
+	 
+	
+	public boolean checkPassword(String m_id, String m_pwd) {
+		String sql= "select m_id, m_pwd from t_member where m_id = ?";
+		ResultSet rs = null;
+		boolean rst = false;
+	
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, m_id);
+			
+			rs = pstmt.executeQuery();
+		
+			while(rs.next()) {
+				String id = rs.getString("m_id");
+				String pwd = rs.getString("m_pwd");
+						
+				if(pwd.equals(m_pwd)) {
+					rst = true;	
+				}else {
+					rst = false;		
+				}
+			}
+			
+		rs.close();	
+		
+		return rst;
+		
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+			return false;
+		}
+	}
+	
+	public void insertMember(String m_id, String m_name, String m_age, String m_pwd, String r_pwd, String m_phone, String s_id, String s_name) {
+		String sql="insert into t_member(m_id, m_name, m_age, m_pwd, r_pwd, m_phone, s_id, s_name) " + 
+					"values (?,?,?,?,?,?,?,?)";
+	
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+	
+			pstmt.setString(1, m_id);
+			pstmt.setString(2, m_name);
+			pstmt.setString(3, m_age); 
+			pstmt.setString(4, m_pwd);
+			pstmt.setString(5, r_pwd);
+			pstmt.setString(6, m_phone);
+			pstmt.setString(7, s_id);
+			pstmt.setString(8, s_name);
+		
+			pstmt.executeUpdate();
+		
+			System.out.println("insert 완료");
+			
+		}catch( Exception ex ) {
+			System.out.println("insert 실패 : "+ex.getMessage());
+		}
+	}
+	
+	public boolean updateData(String m_pwd,String r_pwd, String m_id) {
+		 boolean rst1 = updateMemPwd(m_pwd, m_id);
+		 boolean rst2 = updateRntPwd(r_pwd, m_id);
+		 
+		 if ((rst1==true)&&(rst2==true)) {
+			 return true;
+		 }
+		 return false;
+	}
+	
+	
+	public boolean updateMemPwd(String m_pwd, String m_id) {
+		String sql = "update t_member set m_pwd = ? where m_id = ?";
+		try {
+			conn=dataSource.getConnection();
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, m_pwd);
+			pstmt.setString(2, m_id);
+			
+			pstmt.execute();
+			conn.close();
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean updateRntPwd(String r_pwd, String m_id) {
+		String sql = "update t_member set r_pwd = ? where m_id = ?";
+		try {
+			conn=dataSource.getConnection();
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, r_pwd);
+			pstmt.setString(2, m_id);
+			
+			pstmt.execute();
+			conn.close();
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean deleteData(String m_id) {
+		String sql = "delete from t_member where m_id = ?";
+		try {
+			conn=dataSource.getConnection();
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, m_id);
+			
+			pstmt.execute();
+			conn.close();
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public String makeJson() {
+		JSONArray arr = new JSONArray();
+		String sql="select * from t_board";
+		ResultSet rs=null;
+		try {
+			//datasource처리!!!!
+			conn=dataSource.getConnection();
+			
+			pstmt=conn.prepareStatement(sql);
+			rs=pstmt.executeQuery();
+			while(rs.next()) {
+				String f_id = rs.getString("f_id");
+				String w_title = rs.getString("w_title");
+				String p_text = rs.getString("p_text");
+				String w_id = rs.getString("w_id");
+				
+				
+				JSONObject o = new JSONObject();
+				o.put("f_id",f_id);
+				o.put("p_text",p_text);
+				o.put("w_title",w_title);
+				o.put("w_id",w_id);
+				arr.add(o);
+			}
+			rs.close();
+			return arr.toJSONString();
+		}catch(Exception e) {
+			return null;
+		}
+		
+	}
+}

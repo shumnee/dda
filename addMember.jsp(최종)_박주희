@@ -1,0 +1,112 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Colorlib Templates">
+    <meta name="author" content="Colorlib">
+    <meta name="keywords" content="Colorlib Templates">
+    <link href="/web/resources/bootstrap/registration/vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
+    <link href="/web/resources/bootstrap/registration/vendor/font-awesome-4.7/css/font-awesome.min.css" rel="stylesheet" media="all">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
+    <link href="/web/resources/bootstrap/registration/vendor/select2/select2.min.css" rel="stylesheet" media="all">
+    <link href="/web/resources/bootstrap/registration/vendor/datepicker/daterangepicker.css" rel="stylesheet" media="all">
+    <link href="/web/resources/bootstrap/registration/css/main.css" rel="stylesheet" media="all">
+	<script src=https://code.jquery.com/jquery-3.4.1.min.js></script>
+	<script src="<c:url value="/resources/js/addmember.js" />" type="text/javascript" charset="UTF-8"></script>
+</head>
+<body>
+    <div class="page-wrapper bg-blue p-t-180 p-b-100 font-robo">
+        <div class="wrapper wrapper--w960">
+            <div class="card card-2">
+                <!-- <div class="card-heading"></div> -->
+                <div class="card-body">
+                    <h2 class="title">Registration Info</h2>
+                    <form class="form-group" id="addMemberForm" action="addMemberPro" method="get">
+                        <div class="row row-space">
+                            <div class="col-2">
+		                    	<div class="input-group">
+                            		<input class="input--style-2" type="text" placeholder="아이디" id="id" name="id">
+                           		</div>        
+                            </div>
+                            <div class="col-2">
+                            	<div class="input-group">
+                            		<input class="input--style-2" type="text" placeholder="이름" id="name" name="name">
+                            	</div>
+                            </div>
+                        </div>
+                        <div class="row row-space">
+                            <div class="col-2">
+		                    	<div class="input-group">
+                            		<input class="input--style-2" type="password" placeholder="비밀번호" id="pwd" name="pwd">
+                           		</div>        
+                            </div>
+                            <div class="col-2">
+                            	<div class="input-group">
+                            		<input class="input--style-2" type="password" placeholder="비밀번호 확인" id="pwdChk" name="pwdChk">
+                            		<span class="text-danger" id="spanPwd" value="N"></span>
+                            	</div>
+                            </div>
+                        </div>
+                        <div class="row row-space">
+                            <div class="col-2">
+		                    	<div class="input-group">
+                            		<input class="input--style-2" type="password" placeholder="대여 비밀번호" id="r_pwd" name="r_pwd">
+                           		</div>        
+                            </div>
+                            <div class="col-2">
+                            	<div class="input-group">
+                            		<input class="input--style-2" type="password" placeholder="대여 비밀번호 확인" id="r_pwdChk" name="r_pwdChk">
+                            		<span class="text-danger" id="spanRPwd" value="N"></span>
+                            	</div>
+                            </div>
+                        </div>
+                        <div class="row row-space">
+                            <div class="col-2">
+                            	<div class="input-group">
+                            		<input class="input--style-2" type="text" placeholder="전화번호(000-0000-0000)" id="phone" name="phone">
+                            	</div>
+                            </div>
+                            <div class="col-2">
+                            	<div class="input-group">
+                            		<input class="input--style-2" type="text" placeholder="나이" id="age" name="age">
+                            	</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row row-space">
+                            <div class="col-2">
+                            	<div class="input-group">
+                            		<input class="input--style-2" type="text" placeholder="즐겨찾는 대여소" id="s_name" name="s_name">
+                            		<input class="input--style-2" type="text" style="display:none;" id="s_id" name="s_id">
+                            	</div>
+                            </div>
+                        </div>
+                        <div class="p-t-30">
+                        	<button class="btn btn--radius btn--green" id="enroll" type="submit" onSubmit="return false;">가입</button>
+                        	<button class="btn btn--radius btn--green" type="button" onclick="javascript:form.action='home';">취소</button>
+                        </div>
+                       
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- 
+    Jquery JS
+    <script src="/web/resources/bootstrap/registration/vendor/jquery/jquery.min.js"></script>
+    Vendor JS
+    <script src="/web/resources/bootstrap/registration/vendor/select2/select2.min.js"></script>
+    <script src="/web/resources/bootstrap/registration/vendor/datepicker/moment.min.js"></script>
+    <script src="/web/resources/bootstrap/registration/vendor/datepicker/daterangepicker.js"></script>
+
+    Main JS
+    <script src="/web/resources/bootstrap/registration/js/global.js"></script>
+ -->
+</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+</html>

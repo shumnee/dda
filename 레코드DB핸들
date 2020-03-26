@@ -1,0 +1,100 @@
+package com.three.web;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+
+import javax.sql.DataSource;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+
+@Repository
+public class RecordDBHandle {
+	@Autowired
+	DataSource dataSource;
+
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	
+	
+	public String selectRecord() {
+		JSONArray arr = new JSONArray();
+		String sql= "select use_time, m_mile from t_use_ticket, t_member";
+
+		ResultSet rs = null;
+	
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				String use_time = rs.getString("use_time");
+				int m_mile = rs.getInt("m_mile");						
+				
+	
+				//SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd");
+				
+				JSONObject o = new JSONObject();
+				o.put("use_time",use_time);
+				//o.put("rental_time", transFormat.format(rental_time));
+				o.put("m_mile",m_mile);
+				arr.add(o);
+			}
+			
+		rs.close();
+		
+		return arr.toString();
+		
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+			return null;
+		}
+	}
+	
+	public String selectRecord2() {
+		JSONArray arr = new JSONArray();
+		String sql= "select b_id, r_id, rs_id, r_use from t_use_ticket";
+		
+		ResultSet rs = null;
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				String b_id = rs.getString("b_id");
+				String r_id = rs.getString("r_id");
+				String rs_id = rs.getString("rs_id");
+				int r_use = rs.getInt("r_use");						
+				
+				
+				JSONObject o = new JSONObject();
+				
+			
+				o.put("b_id",b_id);
+				o.put("r_id",r_id);
+				o.put("rs_id",rs_id);
+				o.put("r_use",r_use);
+				
+				arr.add(o);
+			}
+			
+			rs.close();
+			
+			return arr.toString();
+			
+		}catch( Exception ex ) {
+			System.out.println(ex.getMessage());
+			return null;
+		}
+	}
+}

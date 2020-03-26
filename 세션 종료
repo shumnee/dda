@@ -1,0 +1,4 @@
+		HttpSession session = request.getSession();
+
+		session.invalidate();
+		return "home";

@@ -1,0 +1,186 @@
+package com.three.web;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.sql.DataSource;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class TicketHandle {
+	@Autowired
+	DataSource dataSource;
+
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+		
+	
+	public String t_memberJson() {
+		JSONArray arr = new JSONArray();
+		String sql="select * from t_member";
+		ResultSet rs = null;
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String M_ID = rs.getString("M_ID");
+				String M_PWD = rs.getString("M_PWD");
+				String M_NAME = rs.getString("M_NAME");
+				int M_AGE = rs.getInt("M_AGE");
+				String M_PHONE = rs.getString("M_PHONE");
+				int M_MILE = rs.getInt("M_MILE");
+				String S_ID = rs.getString("S_ID");
+				int M_SUM = rs.getInt("M_SUM");
+				int R_PWD = rs.getInt("R_PWD");
+				
+				JSONObject o = new JSONObject();
+				
+				o.put("M_ID",M_ID);
+				o.put("M_PWD",M_PWD);
+				o.put("M_NAME",M_NAME);
+				o.put("M_AGE",M_AGE);
+				o.put("M_PHONE",M_PHONE);
+				o.put("M_MILE",M_MILE);
+				o.put("S_ID",S_ID);
+				o.put("M_SUM",M_SUM);
+				o.put("R_PWD",R_PWD);
+				
+				arr.add(o);
+			}
+			rs.close();
+			return arr.toJSONString();
+			
+		}catch( Exception ex ) {
+			return null;
+		}
+	}
+	
+	public String t_boardJson() {
+		JSONArray arr = new JSONArray();
+		String sql="select * from t_board";
+		ResultSet rs = null;
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String F_ID = rs.getString("F_ID");
+				String W_ID = rs.getString("W_ID");
+				String P_TEXT = rs.getString("P_TEXT");
+				String R_TEXT = rs.getString("R_TEXT");
+				String W_DATE = rs.getString("W_DATE");
+				String U_ID = rs.getString("U_ID");
+				String W_TITLE = rs.getString("W_TITLE");
+				
+
+				
+				JSONObject o = new JSONObject();
+				
+				o.put("F_ID",F_ID);
+				o.put("W_ID",W_ID);
+				o.put("P_TEXT",P_TEXT);
+				o.put("R_TEXT",R_TEXT);
+				o.put("W_DATE",W_DATE);
+				o.put("U_ID",U_ID);
+				o.put("W_TITLE",W_TITLE);
+				
+				arr.add(o);
+			}
+			rs.close();
+			return arr.toJSONString();
+			
+		}catch( Exception ex ) {
+			return null;
+		}
+	}
+	
+	public String t_paymentJson() {
+		JSONArray arr = new JSONArray();
+		String sql="select * from t_payment";
+		ResultSet rs = null;
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String P_ID = rs.getString("P_ID");
+				String R_ID = rs.getString("R_ID");
+				String M_ID = rs.getString("M_ID");
+				int PRICE = rs.getInt("PRICE");
+				String P_CODE = rs.getString("P_CODE");
+				
+				
+				
+				JSONObject o = new JSONObject();
+				
+				o.put("P_ID",P_ID);
+				o.put("R_ID",R_ID);
+				o.put("M_ID",M_ID);
+				o.put("PRICE",PRICE);
+				o.put("P_CODE",P_CODE);
+				
+				arr.add(o);
+			}
+			rs.close();
+			return arr.toJSONString();
+			
+		}catch( Exception ex ) {
+			return null;
+		}
+	}
+	
+	public String t_use_ticketJson() {
+		JSONArray arr = new JSONArray();
+		String sql="select * from t_use_ticket";
+		ResultSet rs = null;
+		
+		try {
+			conn = dataSource.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String R_ID = rs.getString("R_ID");
+				String M_ID = rs.getString("M_ID");
+				String T_ID = rs.getString("T_ID");
+				String S_ID = rs.getString("S_ID");
+				String B_ID = rs.getString("B_ID");
+				int R_USE = rs.getInt("R_USE");
+				String RENTAL_TIME = rs.getString("RENTAL_TIME");
+				String RS_ID = rs.getString("RS_ID");
+				String RETURN_TIME = rs.getString("RETURN_TIME");
+				String INSURANCE_YN = rs.getString("INSURANCE_YN");
+				int USE_TIME = rs.getInt("USE_TIME");
+				
+				JSONObject o = new JSONObject();
+				
+				o.put("R_ID",R_ID);
+				o.put("M_ID",M_ID);
+				o.put("T_ID",T_ID);
+				o.put("S_ID",S_ID);
+				o.put("B_ID",B_ID);
+				o.put("R_USE",R_USE);
+				o.put("RENTAL_TIME",RENTAL_TIME);
+				o.put("RS_ID",RS_ID);
+				o.put("RETURN_TIME",RETURN_TIME);
+				o.put("INSURANCE_YN",INSURANCE_YN);
+				o.put("USE_TIME",USE_TIME);
+				
+				arr.add(o);
+			}
+			rs.close();
+			return arr.toJSONString();
+			
+		}catch( Exception ex ) {
+			return null;
+		}
+	}	
+}

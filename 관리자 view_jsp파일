@@ -1,0 +1,77 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+
+function fn1(data){
+	  $.each(data,function(i,v){
+		  $("#t_member").append('<tr><td>'+v.M_ID+'</td><td>'+v.M_PWD+'</td><td>'+v.M_NAME+'</td><td>'+v.M_AGE+'</td><td>'+v.M_PHONE+'</td><td>'+v.M_MILE+'</td><td>'+v.S_ID+'</td><td>'+v.M_SUM+'</td><td>'+v.R_PWD+'</td></tr>')
+	  })
+		 
+	  
+}
+$.getJSON('rstMember',fn1)
+
+function fn2(data){
+	  $.each(data,function(i,v){
+		  $("#t_board").append('<tr><td>'+v.F_ID+'</td><td>'+v.W_ID+'</td><td>'+v.P_TEXT+'</td><td>'+v.R_TEXT+'</td><td>'+v.W_DATE+'</td><td>'+v.W_IMG+'</td><td>'+v.U_ID+'</td><td>'+v.W_TITLE+'</td></tr>')
+	  })
+		 
+	  
+}
+$.getJSON('rstBoard',fn2)
+
+function fn3(data){
+	  $.each(data,function(i,v){
+		  $("#t_payment").append('<tr><td>'+v.P_ID+'</td><td>'+v.R_ID+'</td><td>'+v.M_ID+'</td><td>'+v.PRICE+'</td><td>'+v.P_CODE+'</td></tr>')
+	  })
+		 
+	  
+}
+
+$.getJSON('rstPayment',fn3)
+
+function fn4(data){
+	  $.each(data,function(i,v){
+		  $("#t_use_ticket").append('<tr><td>'+v.R_ID+'</td><td>'+v.M_ID+'</td><td>'+v.T_ID+'</td><td>'+v.S_ID+'</td><td>'+v.B_ID+'</td><td>'+v.R_USE+'</td><td>'+v.RENTAL_TIME+'</td><td>'+v.RS_ID+'</td><td>'+v.RETURN_TIME+'</td><td>'+v.INSURANCE_YN+'</td><td>'+v.USE_TIME+'</td></tr>')
+	  })
+		 
+	  
+}
+$.getJSON('rstUseticket',fn4)
+
+
+</script>
+</head>
+<body>
+
+	<h2>회원정보</h2>	
+	<table id="t_member">
+		<tr><th>회원ID</th><th>회원Password</th><th>회원이름</th><th>나이</th><th>연락처</th><th>적립금</th><th>즐겨찾는 대여소</th><th>총 이용시간</th><th>대여 비밀번호</th></tr>
+	</table>
+	
+	
+	<h2>게시판</h2>
+	<table id="t_board">
+		<tr><th>글ID</th><th>작성회원ID</th><th>제목</th><th>내용</th><th>답글</th><th>작성일자</th><th>이미지</th><th>이용내역 ID</th></tr>
+	</table>
+	
+	<h2>결제내역</h2>
+	<table id="t_payment">
+		<tr><th>결제내역ID</th><th>예약내역ID</th><th>회원ID</th><th>금액</th><th>결제진행상태코드</th></tr>
+	</table>
+	
+	
+	<h2>사용내역</h2>
+	<table id="t_use_ticket">
+		<tr><th>예약내역ID</th><th>회원ID</th><th>이용권ID</th><th>대여대여소</th><th>자전거ID</th><th>사용여부</th><th>대여시간</th><th>반납대여소 ID</th><th>반납시간</th><th>보험여부</th><th>이용시간</th></tr>
+	</table>
+	
+	
+</body>
+</html>

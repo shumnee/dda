@@ -1,0 +1,22 @@
+	
+	@RequestMapping(value = "/addMemberPro", method = RequestMethod.GET)
+	public String addMemberPro(HttpServletRequest request, HttpServletResponse response, Model model) {		
+		response.setContentType("text/html; charset=UTF-8");
+
+		String m_id = request.getParameter("id");
+		String m_name = request.getParameter("name");
+		String m_age = request.getParameter("age");
+		String m_pwd = request.getParameter("pwd");
+		String r_pwd = request.getParameter("r_pwd");
+		String phone = request.getParameter("phone");
+		String s_id = request.getParameter("s_id");
+		String s_name = request.getParameter("s_name");
+
+		try {
+			MDBHandle.insertMember(m_id, m_name, m_age, m_pwd, r_pwd, phone, s_id, s_name);
+		} catch (Exception e) {
+				e.printStackTrace();
+		}
+		
+		return "login";
+	}
